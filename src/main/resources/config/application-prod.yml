@@ -67,13 +67,10 @@ spring:
         user: inti.formationyahya@gmail.com
         password: 83118910Pp@
         protocol: smtp
-        tls: true
-        auth: true
-        from: spoonatte@gmail.com
-        properties.mail.smtp:
-            auth: true
-            starttls.enable: true
-            ssl.trust: smtp.gmail.com
+        properties: 
+          mail.smtp.auth: true
+          mail.smtp.starttls.enable: true
+        
   thymeleaf:
     cache: true
 

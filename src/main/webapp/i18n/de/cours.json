@@ -1,0 +1,25 @@
+{
+  "jhEmployeeApp": {
+    "cours": {
+      "home": {
+        "title": "Cours",
+        "createLabel": "Cours erstellen",
+        "createOrEditLabel": "Cours erstellen oder bearbeiten",
+        "notFound": "No Cours found"
+      },
+      "created": "Cours erstellt mit ID {{ param }}",
+      "updated": "Cours aktualisiert mit ID {{ param }}",
+      "deleted": "Cours gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Cours {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Cours"
+      },
+      "titre": "Titre",
+      "dateAjout": "Date Ajout",
+      "video": "Video",
+      "eleve": "Eleve"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="video">
+            <h2><span jhiTranslate="jhEmployeeApp.video.detail.title">Video</span> {{video.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="jhEmployeeApp.video.titre">Titre</span></dt>
+                <dd>
+                    <span>{{video.titre}}</span>
+                </dd>
+                <dt><span jhiTranslate="jhEmployeeApp.video.contenu">Contenu</span></dt>
+                <dd>
+                    <div *ngIf="video.contenu">
+                        <a (click)="openFile(video.contenuContentType, video.contenu)" jhiTranslate="entity.action.open">open</a>
+                        {{video.contenuContentType}}, {{byteSize(video.contenu)}}
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="jhEmployeeApp.video.video">Video</span></dt>
+                <dd>
+                    <div *ngIf="video.video">
+                        <a [routerLink]="['/cours', video.video?.id, 'view']">{{video.video?.id}}</a>
+                    </div>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/video', video.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

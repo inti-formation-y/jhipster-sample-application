@@ -1,0 +1,38 @@
+{
+    "name": "Cours",
+    "fields": [
+        {
+            "fieldName": "titre",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "dateAjout",
+            "fieldType": "LocalDate"
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "video",
+            "otherEntityRelationshipName": "video",
+            "relationshipName": "video"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "eleve",
+            "otherEntityRelationshipName": "cours",
+            "javadoc": "Another side of the same relationship",
+            "relationshipName": "eleve",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20200318225939",
+    "entityTableName": "cours",
+    "dto": "no",
+    "pagination": "pagination",
+    "service": "no",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

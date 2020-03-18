@@ -1,0 +1,57 @@
+{
+    "name": "Eleve",
+    "fields": [
+        {
+            "fieldName": "photo",
+            "fieldType": "byte[]",
+            "fieldTypeBlobContent": "image"
+        },
+        {
+            "fieldName": "nom",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "prenom",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "adresse",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "email",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "mobile",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "dateNaissance",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "classe",
+            "fieldType": "Classe",
+            "fieldValues": "CP,CE1,CE2,CM1,CM2"
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "cours",
+            "otherEntityRelationshipName": "eleve",
+            "javadoc": "A relationship",
+            "relationshipName": "cours"
+        }
+    ],
+    "changelogDate": "20200318225941",
+    "entityTableName": "eleve",
+    "dto": "no",
+    "pagination": "pagination",
+    "service": "no",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

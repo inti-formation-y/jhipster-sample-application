@@ -1,0 +1,24 @@
+{
+  "jhEmployeeApp": {
+    "video": {
+      "home": {
+        "title": "Videos",
+        "createLabel": "Video erstellen",
+        "createOrEditLabel": "Video erstellen oder bearbeiten",
+        "notFound": "No Video found"
+      },
+      "created": "Video erstellt mit ID {{ param }}",
+      "updated": "Video aktualisiert mit ID {{ param }}",
+      "deleted": "Video gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Video {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Video"
+      },
+      "titre": "Titre",
+      "contenu": "Contenu",
+      "video": "Video"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "jhEmployeeApp": {
+    "eleve": {
+      "home": {
+        "title": "Eleves",
+        "createLabel": "Eleve erstellen",
+        "createOrEditLabel": "Eleve erstellen oder bearbeiten",
+        "notFound": "No Eleve found"
+      },
+      "created": "Eleve erstellt mit ID {{ param }}",
+      "updated": "Eleve aktualisiert mit ID {{ param }}",
+      "deleted": "Eleve gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Eleve {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Eleve"
+      },
+      "photo": "Photo",
+      "nom": "Nom",
+      "prenom": "Prenom",
+      "adresse": "Adresse",
+      "email": "Email",
+      "mobile": "Mobile",
+      "dateNaissance": "Date Naissance",
+      "classe": "Classe",
+      "cours": "Cours"
+    }
+  }
+}

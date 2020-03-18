@@ -1,0 +1,54 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+            <h2 id="jhi-video-heading" jhiTranslate="jhEmployeeApp.video.home.createOrEditLabel">Create or edit a Video</h2>
+            <div>
+                <jhi-alert-error></jhi-alert-error>
+                <div class="form-group" [hidden]="!editForm.get('id').value">
+                    <label for="id" jhiTranslate="global.field.id">ID</label>
+                    <input type="text" class="form-control" id="id" name="id" formControlName="id"
+                        readonly />
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="jhEmployeeApp.video.titre" for="field_titre">Titre</label>
+                    <input type="text" class="form-control" name="titre" id="field_titre"
+                           formControlName="titre"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="jhEmployeeApp.video.contenu" for="field_contenu">Contenu</label>
+                    <div>
+                        <div *ngIf="editForm.get('contenu').value" class="form-text text-danger clearfix">
+                            <a class="pull-left" (click)="openFile(editForm.get('contenuContentType').value, editForm.get('contenu').value)" jhiTranslate="entity.action.open">open</a><br>
+                            <span class="pull-left">{{editForm.get('contenuContentType').value}}, {{byteSize(editForm.get('contenu').value)}}</span>
+                            <button type="button" (click)="editForm.patchValue({contenu: null});editForm.patchValue({contenuContentType: null});"
+                                    class="btn btn-secondary btn-xs pull-right">
+                                <fa-icon [icon]="'times'"></fa-icon>
+                            </button>
+                        </div>
+                        <input type="file" id="file_contenu" (change)="setFileData($event, 'contenu', false)" jhiTranslate="entity.action.addblob"/>
+                    </div>
+                    <input type="hidden" class="form-control" name="contenu" id="field_contenu"
+                           formControlName="contenu"/>
+                    <input type="hidden" class="form-control" name="contenuContentType" id="field_contenuContentType"
+                           formControlName="contenuContentType" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="jhEmployeeApp.video.video" for="field_video">Video</label>
+                    <select class="form-control" id="field_video" name="video" formControlName="video">
+                        <option [ngValue]="null"></option>
+                        <option [ngValue]="coursOption.id === editForm.get('video').value?.id ? editForm.get('video').value : coursOption" *ngFor="let coursOption of cours; trackBy: trackCoursById">{{coursOption.id}}</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <button type="button" id="cancel-save" class="btn btn-secondary"  (click)="previousState()">
+                    <fa-icon [icon]="'ban'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+                <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving" class="btn btn-primary">
+                    <fa-icon [icon]="'save'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

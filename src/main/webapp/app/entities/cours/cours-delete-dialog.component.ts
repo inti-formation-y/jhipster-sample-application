@@ -1,65 +1,26 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-
-import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Component } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { JhiEventManager } from 'ng-jhipster';
 
 import { ICours } from 'app/shared/model/cours.model';
 import { CoursService } from './cours.service';
 
 @Component({
-  selector: 'jhi-cours-delete-dialog',
   templateUrl: './cours-delete-dialog.component.html'
 })
 export class CoursDeleteDialogComponent {
-  cours: ICours;
+  cours?: ICours;
 
   constructor(protected coursService: CoursService, public activeModal: NgbActiveModal, protected eventManager: JhiEventManager) {}
 
-  clear() {
-    this.activeModal.dismiss('cancel');
+  cancel(): void {
+    this.activeModal.dismiss();
   }
 
-  confirmDelete(id: number) {
-    this.coursService.delete(id).subscribe(response => {
-      this.eventManager.broadcast({
-        name: 'coursListModification',
-        content: 'Deleted an cours'
-      });
-      this.activeModal.dismiss(true);
+  confirmDelete(id: number): void {
+    this.coursService.delete(id).subscribe(() => {
+      this.eventManager.broadcast('coursListModification');
+      this.activeModal.close();
     });
-  }
-}
-
-@Component({
-  selector: 'jhi-cours-delete-popup',
-  template: ''
-})
-export class CoursDeletePopupComponent implements OnInit, OnDestroy {
-  protected ngbModalRef: NgbModalRef;
-
-  constructor(protected activatedRoute: ActivatedRoute, protected router: Router, protected modalService: NgbModal) {}
-
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ cours }) => {
-      setTimeout(() => {
-        this.ngbModalRef = this.modalService.open(CoursDeleteDialogComponent as Component, { size: 'lg', backdrop: 'static' });
-        this.ngbModalRef.componentInstance.cours = cours;
-        this.ngbModalRef.result.then(
-          result => {
-            this.router.navigate(['/cours', { outlets: { popup: null } }]);
-            this.ngbModalRef = null;
-          },
-          reason => {
-            this.router.navigate(['/cours', { outlets: { popup: null } }]);
-            this.ngbModalRef = null;
-          }
-        );
-      }, 0);
-    });
-  }
-
-  ngOnDestroy() {
-    this.ngbModalRef = null;
   }
 }

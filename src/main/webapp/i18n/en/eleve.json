@@ -5,7 +5,7 @@
         "title": "Eleves",
         "createLabel": "Create a new Eleve",
         "createOrEditLabel": "Create or edit a Eleve",
-        "notFound": "No Eleve found"
+        "notFound": "No Eleves found"
       },
       "created": "A new Eleve is created with identifier {{ param }}",
       "updated": "A Eleve is updated with identifier {{ param }}",

@@ -1,34 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { JhEmployeeSharedModule } from 'app/shared';
-import {
-  CoursComponent,
-  CoursDetailComponent,
-  CoursUpdateComponent,
-  CoursDeletePopupComponent,
-  CoursDeleteDialogComponent,
-  coursRoute,
-  coursPopupRoute
-} from './';
-
-const ENTITY_STATES = [...coursRoute, ...coursPopupRoute];
+import { JhEmployeeSharedModule } from 'app/shared/shared.module';
+import { CoursComponent } from './cours.component';
+import { CoursDetailComponent } from './cours-detail.component';
+import { CoursUpdateComponent } from './cours-update.component';
+import { CoursDeleteDialogComponent } from './cours-delete-dialog.component';
+import { coursRoute } from './cours.route';
 
 @NgModule({
-  imports: [JhEmployeeSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [CoursComponent, CoursDetailComponent, CoursUpdateComponent, CoursDeleteDialogComponent, CoursDeletePopupComponent],
-  entryComponents: [CoursComponent, CoursUpdateComponent, CoursDeleteDialogComponent, CoursDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [JhEmployeeSharedModule, RouterModule.forChild(coursRoute)],
+  declarations: [CoursComponent, CoursDetailComponent, CoursUpdateComponent, CoursDeleteDialogComponent],
+  entryComponents: [CoursDeleteDialogComponent]
 })
-export class JhEmployeeCoursModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class JhEmployeeCoursModule {}

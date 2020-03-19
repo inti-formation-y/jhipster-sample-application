@@ -1,13 +1,6 @@
 import { Moment } from 'moment';
 import { ICours } from 'app/shared/model/cours.model';
-
-export const enum Classe {
-  CP = 'CP',
-  CE1 = 'CE1',
-  CE2 = 'CE2',
-  CM1 = 'CM1',
-  CM2 = 'CM2'
-}
+import { Classe } from 'app/shared/model/enumerations/classe.model';
 
 export interface IEleve {
   id?: number;

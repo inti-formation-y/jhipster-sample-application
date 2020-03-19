@@ -1,34 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { JhEmployeeSharedModule } from 'app/shared';
-import {
-  VideoComponent,
-  VideoDetailComponent,
-  VideoUpdateComponent,
-  VideoDeletePopupComponent,
-  VideoDeleteDialogComponent,
-  videoRoute,
-  videoPopupRoute
-} from './';
-
-const ENTITY_STATES = [...videoRoute, ...videoPopupRoute];
+import { JhEmployeeSharedModule } from 'app/shared/shared.module';
+import { VideoComponent } from './video.component';
+import { VideoDetailComponent } from './video-detail.component';
+import { VideoUpdateComponent } from './video-update.component';
+import { VideoDeleteDialogComponent } from './video-delete-dialog.component';
+import { videoRoute } from './video.route';
 
 @NgModule({
-  imports: [JhEmployeeSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [VideoComponent, VideoDetailComponent, VideoUpdateComponent, VideoDeleteDialogComponent, VideoDeletePopupComponent],
-  entryComponents: [VideoComponent, VideoUpdateComponent, VideoDeleteDialogComponent, VideoDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [JhEmployeeSharedModule, RouterModule.forChild(videoRoute)],
+  declarations: [VideoComponent, VideoDetailComponent, VideoUpdateComponent, VideoDeleteDialogComponent],
+  entryComponents: [VideoDeleteDialogComponent]
 })
-export class JhEmployeeVideoModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class JhEmployeeVideoModule {}

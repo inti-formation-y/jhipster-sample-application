@@ -8,17 +8,15 @@ import { ICours } from 'app/shared/model/cours.model';
   templateUrl: './cours-detail.component.html'
 })
 export class CoursDetailComponent implements OnInit {
-  cours: ICours;
+  cours: ICours | null = null;
 
   constructor(protected activatedRoute: ActivatedRoute) {}
 
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ cours }) => {
-      this.cours = cours;
-    });
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe(({ cours }) => (this.cours = cours));
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 }

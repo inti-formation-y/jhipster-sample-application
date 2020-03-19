@@ -1,4 +1,5 @@
 package fr.formation.inti.domain;
+
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;

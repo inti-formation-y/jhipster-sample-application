@@ -5,7 +5,7 @@
         "title": "Videos",
         "createLabel": "Create a new Video",
         "createOrEditLabel": "Create or edit a Video",
-        "notFound": "No Video found"
+        "notFound": "No Videos found"
       },
       "created": "A new Video is created with identifier {{ param }}",
       "updated": "A Video is updated with identifier {{ param }}",

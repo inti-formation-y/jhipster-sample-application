@@ -1,74 +1,62 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService, JhiDataUtils } from 'ng-jhipster';
+import { JhiEventManager, JhiDataUtils } from 'ng-jhipster';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IVideo } from 'app/shared/model/video.model';
-import { AccountService } from 'app/core';
 import { VideoService } from './video.service';
+import { VideoDeleteDialogComponent } from './video-delete-dialog.component';
 
 @Component({
   selector: 'jhi-video',
   templateUrl: './video.component.html'
 })
 export class VideoComponent implements OnInit, OnDestroy {
-  videos: IVideo[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+  videos?: IVideo[];
+  eventSubscriber?: Subscription;
 
   constructor(
     protected videoService: VideoService,
-    protected jhiAlertService: JhiAlertService,
     protected dataUtils: JhiDataUtils,
     protected eventManager: JhiEventManager,
-    protected accountService: AccountService
+    protected modalService: NgbModal
   ) {}
 
-  loadAll() {
-    this.videoService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IVideo[]>) => res.ok),
-        map((res: HttpResponse<IVideo[]>) => res.body)
-      )
-      .subscribe(
-        (res: IVideo[]) => {
-          this.videos = res;
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
+  loadAll(): void {
+    this.videoService.query().subscribe((res: HttpResponse<IVideo[]>) => (this.videos = res.body || []));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
     this.registerChangeInVideos();
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  ngOnDestroy(): void {
+    if (this.eventSubscriber) {
+      this.eventManager.destroy(this.eventSubscriber);
+    }
   }
 
-  trackId(index: number, item: IVideo) {
-    return item.id;
+  trackId(index: number, item: IVideo): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.id!;
   }
 
-  byteSize(field) {
-    return this.dataUtils.byteSize(field);
+  byteSize(base64String: string): string {
+    return this.dataUtils.byteSize(base64String);
   }
 
-  openFile(contentType, field) {
-    return this.dataUtils.openFile(contentType, field);
+  openFile(contentType: string, base64String: string): void {
+    return this.dataUtils.openFile(contentType, base64String);
   }
 
-  registerChangeInVideos() {
-    this.eventSubscriber = this.eventManager.subscribe('videoListModification', response => this.loadAll());
+  registerChangeInVideos(): void {
+    this.eventSubscriber = this.eventManager.subscribe('videoListModification', () => this.loadAll());
   }
 
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  delete(video: IVideo): void {
+    const modalRef = this.modalService.open(VideoDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    modalRef.componentInstance.video = video;
   }
 }

@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link VideoResource} REST controller.
+ * Integration tests for the {@link VideoResource} REST controller.
  */
 @SpringBootTest(classes = JhEmployeeApp.class)
 public class VideoResourceIT {
@@ -115,7 +115,7 @@ public class VideoResourceIT {
 
         // Create the Video
         restVideoMockMvc.perform(post("/api/videos")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(video)))
             .andExpect(status().isCreated());
 
@@ -138,7 +138,7 @@ public class VideoResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restVideoMockMvc.perform(post("/api/videos")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(video)))
             .andExpect(status().isBadRequest());
 
@@ -157,9 +157,9 @@ public class VideoResourceIT {
         // Get all the videoList
         restVideoMockMvc.perform(get("/api/videos?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(video.getId().intValue())))
-            .andExpect(jsonPath("$.[*].titre").value(hasItem(DEFAULT_TITRE.toString())))
+            .andExpect(jsonPath("$.[*].titre").value(hasItem(DEFAULT_TITRE)))
             .andExpect(jsonPath("$.[*].contenuContentType").value(hasItem(DEFAULT_CONTENU_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].contenu").value(hasItem(Base64Utils.encodeToString(DEFAULT_CONTENU))));
     }
@@ -173,9 +173,9 @@ public class VideoResourceIT {
         // Get the video
         restVideoMockMvc.perform(get("/api/videos/{id}", video.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(video.getId().intValue()))
-            .andExpect(jsonPath("$.titre").value(DEFAULT_TITRE.toString()))
+            .andExpect(jsonPath("$.titre").value(DEFAULT_TITRE))
             .andExpect(jsonPath("$.contenuContentType").value(DEFAULT_CONTENU_CONTENT_TYPE))
             .andExpect(jsonPath("$.contenu").value(Base64Utils.encodeToString(DEFAULT_CONTENU)));
     }
@@ -206,7 +206,7 @@ public class VideoResourceIT {
             .contenuContentType(UPDATED_CONTENU_CONTENT_TYPE);
 
         restVideoMockMvc.perform(put("/api/videos")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedVideo)))
             .andExpect(status().isOk());
 
@@ -228,7 +228,7 @@ public class VideoResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restVideoMockMvc.perform(put("/api/videos")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(video)))
             .andExpect(status().isBadRequest());
 
@@ -247,26 +247,11 @@ public class VideoResourceIT {
 
         // Delete the video
         restVideoMockMvc.perform(delete("/api/videos/{id}", video.getId())
-            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .accept(TestUtil.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<Video> videoList = videoRepository.findAll();
         assertThat(videoList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Video.class);
-        Video video1 = new Video();
-        video1.setId(1L);
-        Video video2 = new Video();
-        video2.setId(video1.getId());
-        assertThat(video1).isEqualTo(video2);
-        video2.setId(2L);
-        assertThat(video1).isNotEqualTo(video2);
-        video1.setId(null);
-        assertThat(video1).isNotEqualTo(video2);
     }
 }

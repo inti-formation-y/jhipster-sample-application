@@ -1,4 +1,5 @@
 package fr.formation.inti.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.Cache;

@@ -5,7 +5,7 @@
         "title": "Eleves",
         "createLabel": "Eleve erstellen",
         "createOrEditLabel": "Eleve erstellen oder bearbeiten",
-        "notFound": "No Eleve found"
+        "notFound": "No Eleves found"
       },
       "created": "Eleve erstellt mit ID {{ param }}",
       "updated": "Eleve aktualisiert mit ID {{ param }}",

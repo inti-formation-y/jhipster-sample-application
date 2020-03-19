@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { map } from 'rxjs/operators';
+import * as moment from 'moment';
 
+import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared';
+import { createRequestOption } from 'app/shared/util/request-util';
 import { ICours } from 'app/shared/model/cours.model';
 
 type EntityResponseType = HttpResponse<ICours>;
@@ -45,20 +45,20 @@ export class CoursService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  delete(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   protected convertDateFromClient(cours: ICours): ICours {
     const copy: ICours = Object.assign({}, cours, {
-      dateAjout: cours.dateAjout != null && cours.dateAjout.isValid() ? cours.dateAjout.format(DATE_FORMAT) : null
+      dateAjout: cours.dateAjout && cours.dateAjout.isValid() ? cours.dateAjout.format(DATE_FORMAT) : undefined
     });
     return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
-      res.body.dateAjout = res.body.dateAjout != null ? moment(res.body.dateAjout) : null;
+      res.body.dateAjout = res.body.dateAjout ? moment(res.body.dateAjout) : undefined;
     }
     return res;
   }
@@ -66,7 +66,7 @@ export class CoursService {
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((cours: ICours) => {
-        cours.dateAjout = cours.dateAjout != null ? moment(cours.dateAjout) : null;
+        cours.dateAjout = cours.dateAjout ? moment(cours.dateAjout) : undefined;
       });
     }
     return res;

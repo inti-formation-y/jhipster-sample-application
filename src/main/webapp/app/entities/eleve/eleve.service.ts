@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { map } from 'rxjs/operators';
+import * as moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared';
+import { createRequestOption } from 'app/shared/util/request-util';
 import { IEleve } from 'app/shared/model/eleve.model';
 
 type EntityResponseType = HttpResponse<IEleve>;
@@ -45,20 +44,20 @@ export class EleveService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  delete(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   protected convertDateFromClient(eleve: IEleve): IEleve {
     const copy: IEleve = Object.assign({}, eleve, {
-      dateNaissance: eleve.dateNaissance != null && eleve.dateNaissance.isValid() ? eleve.dateNaissance.toJSON() : null
+      dateNaissance: eleve.dateNaissance && eleve.dateNaissance.isValid() ? eleve.dateNaissance.toJSON() : undefined
     });
     return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
-      res.body.dateNaissance = res.body.dateNaissance != null ? moment(res.body.dateNaissance) : null;
+      res.body.dateNaissance = res.body.dateNaissance ? moment(res.body.dateNaissance) : undefined;
     }
     return res;
   }
@@ -66,7 +65,7 @@ export class EleveService {
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((eleve: IEleve) => {
-        eleve.dateNaissance = eleve.dateNaissance != null ? moment(eleve.dateNaissance) : null;
+        eleve.dateNaissance = eleve.dateNaissance ? moment(eleve.dateNaissance) : undefined;
       });
     }
     return res;

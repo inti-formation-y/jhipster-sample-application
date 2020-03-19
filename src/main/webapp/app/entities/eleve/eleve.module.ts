@@ -1,34 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { JhEmployeeSharedModule } from 'app/shared';
-import {
-  EleveComponent,
-  EleveDetailComponent,
-  EleveUpdateComponent,
-  EleveDeletePopupComponent,
-  EleveDeleteDialogComponent,
-  eleveRoute,
-  elevePopupRoute
-} from './';
-
-const ENTITY_STATES = [...eleveRoute, ...elevePopupRoute];
+import { JhEmployeeSharedModule } from 'app/shared/shared.module';
+import { EleveComponent } from './eleve.component';
+import { EleveDetailComponent } from './eleve-detail.component';
+import { EleveUpdateComponent } from './eleve-update.component';
+import { EleveDeleteDialogComponent } from './eleve-delete-dialog.component';
+import { eleveRoute } from './eleve.route';
 
 @NgModule({
-  imports: [JhEmployeeSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [EleveComponent, EleveDetailComponent, EleveUpdateComponent, EleveDeleteDialogComponent, EleveDeletePopupComponent],
-  entryComponents: [EleveComponent, EleveUpdateComponent, EleveDeleteDialogComponent, EleveDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [JhEmployeeSharedModule, RouterModule.forChild(eleveRoute)],
+  declarations: [EleveComponent, EleveDetailComponent, EleveUpdateComponent, EleveDeleteDialogComponent],
+  entryComponents: [EleveDeleteDialogComponent]
 })
-export class JhEmployeeEleveModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class JhEmployeeEleveModule {}

@@ -1,21 +1,9 @@
 package fr.formation.inti.web.rest;
 
-import static fr.formation.inti.web.rest.TestUtil.createFormattingConversionService;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import org.springframework.http.MediaType;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-
-import javax.persistence.EntityManager;
+import fr.formation.inti.JhEmployeeApp;
+import fr.formation.inti.domain.Cours;
+import fr.formation.inti.repository.CoursRepository;
+import fr.formation.inti.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,13 +18,19 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import fr.formation.inti.JhEmployeeApp;
-import fr.formation.inti.domain.Cours;
-import fr.formation.inti.repository.CoursRepository;
-import fr.formation.inti.web.rest.errors.ExceptionTranslator;
+import javax.persistence.EntityManager;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+
+import static fr.formation.inti.web.rest.TestUtil.createFormattingConversionService;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link CoursResource} REST controller.
+ * Integration tests for the {@link CoursResource} REST controller.
  */
 @SpringBootTest(classes = JhEmployeeApp.class)
 public class CoursResourceIT {
@@ -118,7 +112,7 @@ public class CoursResourceIT {
 
         // Create the Cours
         restCoursMockMvc.perform(post("/api/cours")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(cours)))
             .andExpect(status().isCreated());
 
@@ -140,7 +134,7 @@ public class CoursResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCoursMockMvc.perform(post("/api/cours")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(cours)))
             .andExpect(status().isBadRequest());
 
@@ -159,9 +153,9 @@ public class CoursResourceIT {
         // Get all the coursList
         restCoursMockMvc.perform(get("/api/cours?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(cours.getId().intValue())))
-            .andExpect(jsonPath("$.[*].titre").value(hasItem(DEFAULT_TITRE.toString())))
+            .andExpect(jsonPath("$.[*].titre").value(hasItem(DEFAULT_TITRE)))
             .andExpect(jsonPath("$.[*].dateAjout").value(hasItem(DEFAULT_DATE_AJOUT.toString())));
     }
     
@@ -174,9 +168,9 @@ public class CoursResourceIT {
         // Get the cours
         restCoursMockMvc.perform(get("/api/cours/{id}", cours.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(cours.getId().intValue()))
-            .andExpect(jsonPath("$.titre").value(DEFAULT_TITRE.toString()))
+            .andExpect(jsonPath("$.titre").value(DEFAULT_TITRE))
             .andExpect(jsonPath("$.dateAjout").value(DEFAULT_DATE_AJOUT.toString()));
     }
 
@@ -205,7 +199,7 @@ public class CoursResourceIT {
             .dateAjout(UPDATED_DATE_AJOUT);
 
         restCoursMockMvc.perform(put("/api/cours")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedCours)))
             .andExpect(status().isOk());
 
@@ -226,7 +220,7 @@ public class CoursResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restCoursMockMvc.perform(put("/api/cours")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(cours)))
             .andExpect(status().isBadRequest());
 
@@ -245,26 +239,11 @@ public class CoursResourceIT {
 
         // Delete the cours
         restCoursMockMvc.perform(delete("/api/cours/{id}", cours.getId())
-            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .accept(TestUtil.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<Cours> coursList = coursRepository.findAll();
         assertThat(coursList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Cours.class);
-        Cours cours1 = new Cours();
-        cours1.setId(1L);
-        Cours cours2 = new Cours();
-        cours2.setId(cours1.getId());
-        assertThat(cours1).isEqualTo(cours2);
-        cours2.setId(2L);
-        assertThat(cours1).isNotEqualTo(cours2);
-        cours1.setId(null);
-        assertThat(cours1).isNotEqualTo(cours2);
     }
 }

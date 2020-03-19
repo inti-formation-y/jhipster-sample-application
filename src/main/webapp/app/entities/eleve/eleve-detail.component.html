@@ -1,59 +1,62 @@
 <div class="row justify-content-center">
     <div class="col-8">
         <div *ngIf="eleve">
-            <h2><span jhiTranslate="jhEmployeeApp.eleve.detail.title">Eleve</span> {{eleve.id}}</h2>
+            <h2><span jhiTranslate="jhEmployeeApp.eleve.detail.title">Eleve</span> {{ eleve.id }}</h2>
+
             <hr>
+
             <jhi-alert-error></jhi-alert-error>
+
             <dl class="row-md jh-entity-details">
                 <dt><span jhiTranslate="jhEmployeeApp.eleve.photo">Photo</span></dt>
                 <dd>
                     <div *ngIf="eleve.photo">
-                        <a (click)="openFile(eleve.photoContentType, eleve.photo)">
+                        <a (click)="openFile(eleve.photoContentType!, eleve.photo)">
                             <img [src]="'data:' + eleve.photoContentType + ';base64,' + eleve.photo" style="max-width: 100%;" alt="eleve image"/>
                         </a>
-                        {{eleve.photoContentType}}, {{byteSize(eleve.photo)}}
+                        {{ eleve.photoContentType }}, {{ byteSize(eleve.photo) }}
                     </div>
                 </dd>
                 <dt><span jhiTranslate="jhEmployeeApp.eleve.nom">Nom</span></dt>
                 <dd>
-                    <span>{{eleve.nom}}</span>
+                    <span>{{ eleve.nom }}</span>
                 </dd>
                 <dt><span jhiTranslate="jhEmployeeApp.eleve.prenom">Prenom</span></dt>
                 <dd>
-                    <span>{{eleve.prenom}}</span>
+                    <span>{{ eleve.prenom }}</span>
                 </dd>
                 <dt><span jhiTranslate="jhEmployeeApp.eleve.adresse">Adresse</span></dt>
                 <dd>
-                    <span>{{eleve.adresse}}</span>
+                    <span>{{ eleve.adresse }}</span>
                 </dd>
                 <dt><span jhiTranslate="jhEmployeeApp.eleve.email">Email</span></dt>
                 <dd>
-                    <span>{{eleve.email}}</span>
+                    <span>{{ eleve.email }}</span>
                 </dd>
                 <dt><span jhiTranslate="jhEmployeeApp.eleve.mobile">Mobile</span></dt>
                 <dd>
-                    <span>{{eleve.mobile}}</span>
+                    <span>{{ eleve.mobile }}</span>
                 </dd>
                 <dt><span jhiTranslate="jhEmployeeApp.eleve.dateNaissance">Date Naissance</span></dt>
                 <dd>
-                    <span>{{eleve.dateNaissance}}</span>
+                    <span>{{ eleve.dateNaissance }}</span>
                 </dd>
                 <dt><span jhiTranslate="jhEmployeeApp.eleve.classe">Classe</span></dt>
                 <dd>
-                    <span jhiTranslate="{{'jhEmployeeApp.Classe.' + eleve.classe}}">{{eleve.classe}}</span>
+                    <span jhiTranslate="{{ 'jhEmployeeApp.Classe.' + eleve.classe }}">{{ eleve.classe }}</span>
                 </dd>
             </dl>
 
             <button type="submit"
                     (click)="previousState()"
                     class="btn btn-info">
-                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
             </button>
 
             <button type="button"
                     [routerLink]="['/eleve', eleve.id, 'edit']"
                     class="btn btn-primary">
-                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
             </button>
         </div>
     </div>

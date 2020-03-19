@@ -1,27 +1,32 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
-import { UserRouteAccessService } from 'app/core';
-import { Observable, of } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { Video } from 'app/shared/model/video.model';
+import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
+import { Observable, of, EMPTY } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
+
+import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
+import { IVideo, Video } from 'app/shared/model/video.model';
 import { VideoService } from './video.service';
 import { VideoComponent } from './video.component';
 import { VideoDetailComponent } from './video-detail.component';
 import { VideoUpdateComponent } from './video-update.component';
-import { VideoDeletePopupComponent } from './video-delete-dialog.component';
-import { IVideo } from 'app/shared/model/video.model';
 
 @Injectable({ providedIn: 'root' })
 export class VideoResolve implements Resolve<IVideo> {
-  constructor(private service: VideoService) {}
+  constructor(private service: VideoService, private router: Router) {}
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<IVideo> {
-    const id = route.params['id'] ? route.params['id'] : null;
+  resolve(route: ActivatedRouteSnapshot): Observable<IVideo> | Observable<never> {
+    const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        filter((response: HttpResponse<Video>) => response.ok),
-        map((video: HttpResponse<Video>) => video.body)
+        flatMap((video: HttpResponse<Video>) => {
+          if (video.body) {
+            return of(video.body);
+          } else {
+            this.router.navigate(['404']);
+            return EMPTY;
+          }
+        })
       );
     }
     return of(new Video());
@@ -73,21 +78,5 @@ export const videoRoute: Routes = [
       pageTitle: 'jhEmployeeApp.video.home.title'
     },
     canActivate: [UserRouteAccessService]
-  }
-];
-
-export const videoPopupRoute: Routes = [
-  {
-    path: ':id/delete',
-    component: VideoDeletePopupComponent,
-    resolve: {
-      video: VideoResolve
-    },
-    data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'jhEmployeeApp.video.home.title'
-    },
-    canActivate: [UserRouteAccessService],
-    outlet: 'popup'
   }
 ];

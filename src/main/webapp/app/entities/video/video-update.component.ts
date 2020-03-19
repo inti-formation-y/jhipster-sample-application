@@ -1,23 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiAlertService, JhiDataUtils } from 'ng-jhipster';
+import { JhiDataUtils, JhiFileLoadError, JhiEventManager, JhiEventWithContent } from 'ng-jhipster';
+
 import { IVideo, Video } from 'app/shared/model/video.model';
 import { VideoService } from './video.service';
+import { AlertError } from 'app/shared/alert/alert-error.model';
 import { ICours } from 'app/shared/model/cours.model';
-import { CoursService } from 'app/entities/cours';
+import { CoursService } from 'app/entities/cours/cours.service';
 
 @Component({
   selector: 'jhi-video-update',
   templateUrl: './video-update.component.html'
 })
 export class VideoUpdateComponent implements OnInit {
-  isSaving: boolean;
-
-  cours: ICours[];
+  isSaving = false;
+  cours: ICours[] = [];
 
   editForm = this.fb.group({
     id: [],
@@ -29,28 +30,22 @@ export class VideoUpdateComponent implements OnInit {
 
   constructor(
     protected dataUtils: JhiDataUtils,
-    protected jhiAlertService: JhiAlertService,
+    protected eventManager: JhiEventManager,
     protected videoService: VideoService,
     protected coursService: CoursService,
     protected activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {}
 
-  ngOnInit() {
-    this.isSaving = false;
+  ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ video }) => {
       this.updateForm(video);
+
+      this.coursService.query().subscribe((res: HttpResponse<ICours[]>) => (this.cours = res.body || []));
     });
-    this.coursService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICours[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICours[]>) => response.body)
-      )
-      .subscribe((res: ICours[]) => (this.cours = res), (res: HttpErrorResponse) => this.onError(res.message));
   }
 
-  updateForm(video: IVideo) {
+  updateForm(video: IVideo): void {
     this.editForm.patchValue({
       id: video.id,
       titre: video.titre,
@@ -60,43 +55,27 @@ export class VideoUpdateComponent implements OnInit {
     });
   }
 
-  byteSize(field) {
-    return this.dataUtils.byteSize(field);
+  byteSize(base64String: string): string {
+    return this.dataUtils.byteSize(base64String);
   }
 
-  openFile(contentType, field) {
-    return this.dataUtils.openFile(contentType, field);
+  openFile(contentType: string, base64String: string): void {
+    this.dataUtils.openFile(contentType, base64String);
   }
 
-  setFileData(event, field: string, isImage) {
-    return new Promise((resolve, reject) => {
-      if (event && event.target && event.target.files && event.target.files[0]) {
-        const file = event.target.files[0];
-        if (isImage && !/^image\//.test(file.type)) {
-          reject(`File was expected to be an image but was found to be ${file.type}`);
-        } else {
-          const filedContentType: string = field + 'ContentType';
-          this.dataUtils.toBase64(file, base64Data => {
-            this.editForm.patchValue({
-              [field]: base64Data,
-              [filedContentType]: file.type
-            });
-          });
-        }
-      } else {
-        reject(`Base64 data was not set as file could not be extracted from passed parameter: ${event}`);
-      }
-    }).then(
-      () => console.log('blob added'), // sucess
-      this.onError
-    );
+  setFileData(event: Event, field: string, isImage: boolean): void {
+    this.dataUtils.loadFileToForm(event, this.editForm, field, isImage).subscribe(null, (err: JhiFileLoadError) => {
+      this.eventManager.broadcast(
+        new JhiEventWithContent<AlertError>('jhEmployeeApp.error', { ...err, key: 'error.file.' + err.key })
+      );
+    });
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 
-  save() {
+  save(): void {
     this.isSaving = true;
     const video = this.createFromForm();
     if (video.id !== undefined) {
@@ -109,31 +88,31 @@ export class VideoUpdateComponent implements OnInit {
   private createFromForm(): IVideo {
     return {
       ...new Video(),
-      id: this.editForm.get(['id']).value,
-      titre: this.editForm.get(['titre']).value,
-      contenuContentType: this.editForm.get(['contenuContentType']).value,
-      contenu: this.editForm.get(['contenu']).value,
-      video: this.editForm.get(['video']).value
+      id: this.editForm.get(['id'])!.value,
+      titre: this.editForm.get(['titre'])!.value,
+      contenuContentType: this.editForm.get(['contenuContentType'])!.value,
+      contenu: this.editForm.get(['contenu'])!.value,
+      video: this.editForm.get(['video'])!.value
     };
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IVideo>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<IVideo>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError()
+    );
   }
 
-  protected onSaveSuccess() {
+  protected onSaveSuccess(): void {
     this.isSaving = false;
     this.previousState();
   }
 
-  protected onSaveError() {
+  protected onSaveError(): void {
     this.isSaving = false;
   }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
 
-  trackCoursById(index: number, item: ICours) {
+  trackById(index: number, item: ICours): any {
     return item.id;
   }
 }

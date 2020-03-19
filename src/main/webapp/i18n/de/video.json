@@ -5,7 +5,7 @@
         "title": "Videos",
         "createLabel": "Video erstellen",
         "createOrEditLabel": "Video erstellen oder bearbeiten",
-        "notFound": "No Video found"
+        "notFound": "No Videos found"
       },
       "created": "Video erstellt mit ID {{ param }}",
       "updated": "Video aktualisiert mit ID {{ param }}",

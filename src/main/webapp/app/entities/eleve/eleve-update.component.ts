@@ -1,20 +1,23 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import * as moment from 'moment';
 import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
-import { JhiAlertService, JhiDataUtils } from 'ng-jhipster';
+import { JhiDataUtils, JhiFileLoadError, JhiEventManager, JhiEventWithContent } from 'ng-jhipster';
+
 import { IEleve, Eleve } from 'app/shared/model/eleve.model';
 import { EleveService } from './eleve.service';
+import { AlertError } from 'app/shared/alert/alert-error.model';
 
 @Component({
   selector: 'jhi-eleve-update',
   templateUrl: './eleve-update.component.html'
 })
 export class EleveUpdateComponent implements OnInit {
-  isSaving: boolean;
+  isSaving = false;
 
   editForm = this.fb.group({
     id: [],
@@ -31,21 +34,25 @@ export class EleveUpdateComponent implements OnInit {
 
   constructor(
     protected dataUtils: JhiDataUtils,
-    protected jhiAlertService: JhiAlertService,
+    protected eventManager: JhiEventManager,
     protected eleveService: EleveService,
     protected elementRef: ElementRef,
     protected activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {}
 
-  ngOnInit() {
-    this.isSaving = false;
+  ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ eleve }) => {
+      if (!eleve.id) {
+        const today = moment().startOf('day');
+        eleve.dateNaissance = today;
+      }
+
       this.updateForm(eleve);
     });
   }
 
-  updateForm(eleve: IEleve) {
+  updateForm(eleve: IEleve): void {
     this.editForm.patchValue({
       id: eleve.id,
       photo: eleve.photo,
@@ -55,44 +62,28 @@ export class EleveUpdateComponent implements OnInit {
       adresse: eleve.adresse,
       email: eleve.email,
       mobile: eleve.mobile,
-      dateNaissance: eleve.dateNaissance != null ? eleve.dateNaissance.format(DATE_TIME_FORMAT) : null,
+      dateNaissance: eleve.dateNaissance ? eleve.dateNaissance.format(DATE_TIME_FORMAT) : null,
       classe: eleve.classe
     });
   }
 
-  byteSize(field) {
-    return this.dataUtils.byteSize(field);
+  byteSize(base64String: string): string {
+    return this.dataUtils.byteSize(base64String);
   }
 
-  openFile(contentType, field) {
-    return this.dataUtils.openFile(contentType, field);
+  openFile(contentType: string, base64String: string): void {
+    this.dataUtils.openFile(contentType, base64String);
   }
 
-  setFileData(event, field: string, isImage) {
-    return new Promise((resolve, reject) => {
-      if (event && event.target && event.target.files && event.target.files[0]) {
-        const file = event.target.files[0];
-        if (isImage && !/^image\//.test(file.type)) {
-          reject(`File was expected to be an image but was found to be ${file.type}`);
-        } else {
-          const filedContentType: string = field + 'ContentType';
-          this.dataUtils.toBase64(file, base64Data => {
-            this.editForm.patchValue({
-              [field]: base64Data,
-              [filedContentType]: file.type
-            });
-          });
-        }
-      } else {
-        reject(`Base64 data was not set as file could not be extracted from passed parameter: ${event}`);
-      }
-    }).then(
-      () => console.log('blob added'), // sucess
-      this.onError
-    );
+  setFileData(event: Event, field: string, isImage: boolean): void {
+    this.dataUtils.loadFileToForm(event, this.editForm, field, isImage).subscribe(null, (err: JhiFileLoadError) => {
+      this.eventManager.broadcast(
+        new JhiEventWithContent<AlertError>('jhEmployeeApp.error', { ...err, key: 'error.file.' + err.key })
+      );
+    });
   }
 
-  clearInputImage(field: string, fieldContentType: string, idInput: string) {
+  clearInputImage(field: string, fieldContentType: string, idInput: string): void {
     this.editForm.patchValue({
       [field]: null,
       [fieldContentType]: null
@@ -102,11 +93,11 @@ export class EleveUpdateComponent implements OnInit {
     }
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 
-  save() {
+  save(): void {
     this.isSaving = true;
     const eleve = this.createFromForm();
     if (eleve.id !== undefined) {
@@ -119,35 +110,34 @@ export class EleveUpdateComponent implements OnInit {
   private createFromForm(): IEleve {
     return {
       ...new Eleve(),
-      id: this.editForm.get(['id']).value,
-      photoContentType: this.editForm.get(['photoContentType']).value,
-      photo: this.editForm.get(['photo']).value,
-      nom: this.editForm.get(['nom']).value,
-      prenom: this.editForm.get(['prenom']).value,
-      adresse: this.editForm.get(['adresse']).value,
-      email: this.editForm.get(['email']).value,
-      mobile: this.editForm.get(['mobile']).value,
-      dateNaissance:
-        this.editForm.get(['dateNaissance']).value != null
-          ? moment(this.editForm.get(['dateNaissance']).value, DATE_TIME_FORMAT)
-          : undefined,
-      classe: this.editForm.get(['classe']).value
+      id: this.editForm.get(['id'])!.value,
+      photoContentType: this.editForm.get(['photoContentType'])!.value,
+      photo: this.editForm.get(['photo'])!.value,
+      nom: this.editForm.get(['nom'])!.value,
+      prenom: this.editForm.get(['prenom'])!.value,
+      adresse: this.editForm.get(['adresse'])!.value,
+      email: this.editForm.get(['email'])!.value,
+      mobile: this.editForm.get(['mobile'])!.value,
+      dateNaissance: this.editForm.get(['dateNaissance'])!.value
+        ? moment(this.editForm.get(['dateNaissance'])!.value, DATE_TIME_FORMAT)
+        : undefined,
+      classe: this.editForm.get(['classe'])!.value
     };
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IEleve>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<IEleve>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError()
+    );
   }
 
-  protected onSaveSuccess() {
+  protected onSaveSuccess(): void {
     this.isSaving = false;
     this.previousState();
   }
 
-  protected onSaveError() {
+  protected onSaveError(): void {
     this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
   }
 }

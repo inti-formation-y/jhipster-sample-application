@@ -1,24 +1,22 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import * as moment from 'moment';
-import { JhiAlertService } from 'ng-jhipster';
+
 import { ICours, Cours } from 'app/shared/model/cours.model';
 import { CoursService } from './cours.service';
 import { IEleve } from 'app/shared/model/eleve.model';
-import { EleveService } from 'app/entities/eleve';
+import { EleveService } from 'app/entities/eleve/eleve.service';
 
 @Component({
   selector: 'jhi-cours-update',
   templateUrl: './cours-update.component.html'
 })
 export class CoursUpdateComponent implements OnInit {
-  isSaving: boolean;
-
-  eleves: IEleve[];
+  isSaving = false;
+  eleves: IEleve[] = [];
   dateAjoutDp: any;
 
   editForm = this.fb.group({
@@ -29,28 +27,21 @@ export class CoursUpdateComponent implements OnInit {
   });
 
   constructor(
-    protected jhiAlertService: JhiAlertService,
     protected coursService: CoursService,
     protected eleveService: EleveService,
     protected activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {}
 
-  ngOnInit() {
-    this.isSaving = false;
+  ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ cours }) => {
       this.updateForm(cours);
+
+      this.eleveService.query().subscribe((res: HttpResponse<IEleve[]>) => (this.eleves = res.body || []));
     });
-    this.eleveService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IEleve[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IEleve[]>) => response.body)
-      )
-      .subscribe((res: IEleve[]) => (this.eleves = res), (res: HttpErrorResponse) => this.onError(res.message));
   }
 
-  updateForm(cours: ICours) {
+  updateForm(cours: ICours): void {
     this.editForm.patchValue({
       id: cours.id,
       titre: cours.titre,
@@ -59,11 +50,11 @@ export class CoursUpdateComponent implements OnInit {
     });
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 
-  save() {
+  save(): void {
     this.isSaving = true;
     const cours = this.createFromForm();
     if (cours.id !== undefined) {
@@ -76,30 +67,30 @@ export class CoursUpdateComponent implements OnInit {
   private createFromForm(): ICours {
     return {
       ...new Cours(),
-      id: this.editForm.get(['id']).value,
-      titre: this.editForm.get(['titre']).value,
-      dateAjout: this.editForm.get(['dateAjout']).value,
-      eleve: this.editForm.get(['eleve']).value
+      id: this.editForm.get(['id'])!.value,
+      titre: this.editForm.get(['titre'])!.value,
+      dateAjout: this.editForm.get(['dateAjout'])!.value,
+      eleve: this.editForm.get(['eleve'])!.value
     };
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICours>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICours>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError()
+    );
   }
 
-  protected onSaveSuccess() {
+  protected onSaveSuccess(): void {
     this.isSaving = false;
     this.previousState();
   }
 
-  protected onSaveError() {
+  protected onSaveError(): void {
     this.isSaving = false;
   }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
 
-  trackEleveById(index: number, item: IEleve) {
+  trackById(index: number, item: IEleve): any {
     return item.id;
   }
 }

@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import fr.formation.inti.domain.enumeration.Classe;
 /**
- * Integration tests for the {@Link EleveResource} REST controller.
+ * Integration tests for the {@link EleveResource} REST controller.
  */
 @SpringBootTest(classes = JhEmployeeApp.class)
 public class EleveResourceIT {
@@ -148,7 +148,7 @@ public class EleveResourceIT {
 
         // Create the Eleve
         restEleveMockMvc.perform(post("/api/eleves")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(eleve)))
             .andExpect(status().isCreated());
 
@@ -177,7 +177,7 @@ public class EleveResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restEleveMockMvc.perform(post("/api/eleves")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(eleve)))
             .andExpect(status().isBadRequest());
 
@@ -196,15 +196,15 @@ public class EleveResourceIT {
         // Get all the eleveList
         restEleveMockMvc.perform(get("/api/eleves?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(eleve.getId().intValue())))
             .andExpect(jsonPath("$.[*].photoContentType").value(hasItem(DEFAULT_PHOTO_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].photo").value(hasItem(Base64Utils.encodeToString(DEFAULT_PHOTO))))
-            .andExpect(jsonPath("$.[*].nom").value(hasItem(DEFAULT_NOM.toString())))
-            .andExpect(jsonPath("$.[*].prenom").value(hasItem(DEFAULT_PRENOM.toString())))
-            .andExpect(jsonPath("$.[*].adresse").value(hasItem(DEFAULT_ADRESSE.toString())))
-            .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL.toString())))
-            .andExpect(jsonPath("$.[*].mobile").value(hasItem(DEFAULT_MOBILE.toString())))
+            .andExpect(jsonPath("$.[*].nom").value(hasItem(DEFAULT_NOM)))
+            .andExpect(jsonPath("$.[*].prenom").value(hasItem(DEFAULT_PRENOM)))
+            .andExpect(jsonPath("$.[*].adresse").value(hasItem(DEFAULT_ADRESSE)))
+            .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
+            .andExpect(jsonPath("$.[*].mobile").value(hasItem(DEFAULT_MOBILE)))
             .andExpect(jsonPath("$.[*].dateNaissance").value(hasItem(DEFAULT_DATE_NAISSANCE.toString())))
             .andExpect(jsonPath("$.[*].classe").value(hasItem(DEFAULT_CLASSE.toString())));
     }
@@ -218,15 +218,15 @@ public class EleveResourceIT {
         // Get the eleve
         restEleveMockMvc.perform(get("/api/eleves/{id}", eleve.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(eleve.getId().intValue()))
             .andExpect(jsonPath("$.photoContentType").value(DEFAULT_PHOTO_CONTENT_TYPE))
             .andExpect(jsonPath("$.photo").value(Base64Utils.encodeToString(DEFAULT_PHOTO)))
-            .andExpect(jsonPath("$.nom").value(DEFAULT_NOM.toString()))
-            .andExpect(jsonPath("$.prenom").value(DEFAULT_PRENOM.toString()))
-            .andExpect(jsonPath("$.adresse").value(DEFAULT_ADRESSE.toString()))
-            .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL.toString()))
-            .andExpect(jsonPath("$.mobile").value(DEFAULT_MOBILE.toString()))
+            .andExpect(jsonPath("$.nom").value(DEFAULT_NOM))
+            .andExpect(jsonPath("$.prenom").value(DEFAULT_PRENOM))
+            .andExpect(jsonPath("$.adresse").value(DEFAULT_ADRESSE))
+            .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
+            .andExpect(jsonPath("$.mobile").value(DEFAULT_MOBILE))
             .andExpect(jsonPath("$.dateNaissance").value(DEFAULT_DATE_NAISSANCE.toString()))
             .andExpect(jsonPath("$.classe").value(DEFAULT_CLASSE.toString()));
     }
@@ -263,7 +263,7 @@ public class EleveResourceIT {
             .classe(UPDATED_CLASSE);
 
         restEleveMockMvc.perform(put("/api/eleves")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedEleve)))
             .andExpect(status().isOk());
 
@@ -291,7 +291,7 @@ public class EleveResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restEleveMockMvc.perform(put("/api/eleves")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(TestUtil.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(eleve)))
             .andExpect(status().isBadRequest());
 
@@ -310,26 +310,11 @@ public class EleveResourceIT {
 
         // Delete the eleve
         restEleveMockMvc.perform(delete("/api/eleves/{id}", eleve.getId())
-            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .accept(TestUtil.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<Eleve> eleveList = eleveRepository.findAll();
         assertThat(eleveList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Eleve.class);
-        Eleve eleve1 = new Eleve();
-        eleve1.setId(1L);
-        Eleve eleve2 = new Eleve();
-        eleve2.setId(eleve1.getId());
-        assertThat(eleve1).isEqualTo(eleve2);
-        eleve2.setId(2L);
-        assertThat(eleve1).isNotEqualTo(eleve2);
-        eleve1.setId(null);
-        assertThat(eleve1).isNotEqualTo(eleve2);
     }
 }

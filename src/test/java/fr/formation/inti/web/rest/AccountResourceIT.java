@@ -1,21 +1,22 @@
 package fr.formation.inti.web.rest;
 
-import fr.formation.inti.JhEmployeeApp;
-import fr.formation.inti.config.Constants;
-import fr.formation.inti.domain.Authority;
-import fr.formation.inti.domain.User;
-import fr.formation.inti.repository.AuthorityRepository;
-import fr.formation.inti.repository.UserRepository;
-import fr.formation.inti.security.AuthoritiesConstants;
-import fr.formation.inti.service.MailService;
-import fr.formation.inti.service.UserService;
-import fr.formation.inti.service.dto.PasswordChangeDTO;
-import fr.formation.inti.service.dto.UserDTO;
-import fr.formation.inti.web.rest.errors.ExceptionTranslator;
-import fr.formation.inti.web.rest.vm.KeyAndPasswordVM;
-import fr.formation.inti.web.rest.vm.ManagedUserVM;
-import org.apache.commons.lang3.RandomStringUtils;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -30,15 +31,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import fr.formation.inti.JhEmployeeApp;
+import fr.formation.inti.config.Constants;
+import fr.formation.inti.domain.Authority;
+import fr.formation.inti.domain.User;
+import fr.formation.inti.repository.AuthorityRepository;
+import fr.formation.inti.repository.UserRepository;
+import fr.formation.inti.security.AuthoritiesConstants;
+import fr.formation.inti.service.MailService;
+import fr.formation.inti.service.UserService;
+import fr.formation.inti.service.dto.PasswordChangeDTO;
+import fr.formation.inti.service.dto.UserDTO;
+import fr.formation.inti.web.rest.errors.ExceptionTranslator;
+import fr.formation.inti.web.rest.vm.KeyAndPasswordVM;
+import fr.formation.inti.web.rest.vm.ManagedUserVM;
 
 /**
  * Integration tests for the {@link AccountResource} REST controller.

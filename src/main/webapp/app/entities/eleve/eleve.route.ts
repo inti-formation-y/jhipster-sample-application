@@ -1,28 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
-import { JhiPaginationUtil, JhiResolvePagingParams } from 'ng-jhipster';
-import { UserRouteAccessService } from 'app/core';
-import { Observable, of } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { Eleve } from 'app/shared/model/eleve.model';
+import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
+import { JhiResolvePagingParams } from 'ng-jhipster';
+import { Observable, of, EMPTY } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
+
+import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
+import { IEleve, Eleve } from 'app/shared/model/eleve.model';
 import { EleveService } from './eleve.service';
 import { EleveComponent } from './eleve.component';
 import { EleveDetailComponent } from './eleve-detail.component';
 import { EleveUpdateComponent } from './eleve-update.component';
-import { EleveDeletePopupComponent } from './eleve-delete-dialog.component';
-import { IEleve } from 'app/shared/model/eleve.model';
 
 @Injectable({ providedIn: 'root' })
 export class EleveResolve implements Resolve<IEleve> {
-  constructor(private service: EleveService) {}
+  constructor(private service: EleveService, private router: Router) {}
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<IEleve> {
-    const id = route.params['id'] ? route.params['id'] : null;
+  resolve(route: ActivatedRouteSnapshot): Observable<IEleve> | Observable<never> {
+    const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        filter((response: HttpResponse<Eleve>) => response.ok),
-        map((eleve: HttpResponse<Eleve>) => eleve.body)
+        flatMap((eleve: HttpResponse<Eleve>) => {
+          if (eleve.body) {
+            return of(eleve.body);
+          } else {
+            this.router.navigate(['404']);
+            return EMPTY;
+          }
+        })
       );
     }
     return of(new Eleve());
@@ -78,21 +83,5 @@ export const eleveRoute: Routes = [
       pageTitle: 'jhEmployeeApp.eleve.home.title'
     },
     canActivate: [UserRouteAccessService]
-  }
-];
-
-export const elevePopupRoute: Routes = [
-  {
-    path: ':id/delete',
-    component: EleveDeletePopupComponent,
-    resolve: {
-      eleve: EleveResolve
-    },
-    data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'jhEmployeeApp.eleve.home.title'
-    },
-    canActivate: [UserRouteAccessService],
-    outlet: 'popup'
   }
 ];
